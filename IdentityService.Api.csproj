@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>da79b737-51e4-482e-9259-0f41ccb9e5e7</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	  <PackageReference Include="EntityFramework" Version="6.5.1" />
+	  <PackageReference Include="FluentValidation" Version="11.11.0" />
+	  <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+	  <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
+	  <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.5" />
+	  <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.5" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+	  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="NSwag.AspNetCore" Version="14.2.0" />
+	  <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="1.4.0" />
+	  <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Shared" Version="1.4.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.1.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.1.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.1.0" />
+	  <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
+	  <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
+	  <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityService.Contracts\IdentityService.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
