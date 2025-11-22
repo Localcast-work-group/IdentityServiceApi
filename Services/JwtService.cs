@@ -88,5 +88,22 @@ namespace IdentityService.Api.Services
             await UnitOfWork.Jwts.RevokeRefreshTokensForUserAsync(userId);
         }
 
+        public async Task<string> GenerateServiceToken(IEnumerable<Claim> claims)
+        {
+            SymmetricSecurityKey symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.Key));
+            SigningCredentials credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+
+            JwtSecurityToken jwtToken = new JwtSecurityToken(
+                issuer: _authenticationSettings.Issuer,
+                audience: _authenticationSettings.Issuer,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(60),
+                signingCredentials: credentials
+            );
+
+            string jwt = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+
+            return jwt;
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace IdentityService.Api.Data
         private IUserRepository _userRepository;
         private IJwtRepository _jwtRepository;
         private IRoleRepository _roleRepository;
+        private IApiClientRepository _apiClientRepository;
 
         public UnitOfWork(ApplicationDbContext dbContext)
         {
@@ -39,6 +40,13 @@ namespace IdentityService.Api.Data
             get
             {
                 return _roleRepository ??= new RoleRepository(_dbContext);
+            }
+        }
+        public IApiClientRepository ApiClients
+        {
+            get
+            {
+                return _apiClientRepository ??= new ApiClientRepository(_dbContext);
             }
         }
         // for BaseService
