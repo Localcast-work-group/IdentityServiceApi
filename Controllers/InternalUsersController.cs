@@ -35,7 +35,7 @@ namespace IdentityService.Api.Controllers
                 });
             }
 
-            bool isActive = user.Status == (char)Status.Approved;
+            bool isActive = user.Status != (char)Status.Banned;
 
             return Ok(new UserValidationResponse
             {

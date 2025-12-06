@@ -1,5 +1,6 @@
 ﻿using IdentityService.Api.Interfaces.Services;
 using IdentityService.Api.Models.ApiClient.DTOs;
+using IdentityService.Contracts.ApiResponses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityService.Api.Controllers
@@ -20,11 +21,11 @@ namespace IdentityService.Api.Controllers
         {
             var token = await _oauthService.AuthenticateClientAsync(request.ClientId, request.ClientSecret);
 
-            return Ok(new
+            return Ok(new TokenResponse
             {
-                access_token = token,
-                token_type = "Bearer",
-                expires_in = 3600 
+                AccessToken = token,
+                TokenType = "Bearer",
+                ExpiresIn = 3600 
             });
         }
     }
