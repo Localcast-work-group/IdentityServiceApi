@@ -8,6 +8,7 @@ namespace IdentityService.Api.Interfaces
         IUserRepository Users { get; }
         IJwtRepository Jwts { get; }
         IRoleRepository Roles { get; }
+        IApiClientRepository ApiClients { get; }
         IBaseRepository<T> Repository<T>() where T : class, IModelWithNameAndId;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

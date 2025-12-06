@@ -55,6 +55,7 @@ namespace IdentityService.Api
             builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IOAuthService, OAuthService>();
 
             builder.Services.AddFluentValidationAutoValidation(configuration =>
             {
