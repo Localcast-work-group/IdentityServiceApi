@@ -39,10 +39,9 @@
 	  <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
 	  <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
 
+	  <PackageReference Include="Localcast-work-group.IdentityService.Contracts" Version="1.0.0" />
+
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\IdentityService.Contracts\IdentityService.Contracts.csproj" />
-  </ItemGroup>
 
 </Project>
