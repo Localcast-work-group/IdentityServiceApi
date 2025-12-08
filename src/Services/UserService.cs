@@ -1,14 +1,12 @@
-﻿using BCrypt;
-using Humanizer;
-using IdentityService.Api.Enums;
+﻿using IdentityService.Api.Enums;
 using IdentityService.Api.Exceptions;
 using IdentityService.Api.Exceptions.BusinessRuleValidation;
 using IdentityService.Api.Interfaces;
 using IdentityService.Api.Interfaces.Services;
-using IdentityService.Api.Models.RefreshToken;
 using IdentityService.Api.Models.Role;
 using IdentityService.Api.Models.User;
 using IdentityService.Api.Models.User.DTOs;
+using IdentityService.Contracts.Events;
 using MassTransit;
 using System.Security.Claims;
 namespace IdentityService.Api.Services
@@ -19,15 +17,17 @@ namespace IdentityService.Api.Services
         IUnitOfWork UnitOfWork { get; set; }
         Serilog.ILogger Logger { get; set; }
         IPublishEndpoint PublishEndpoint { get; set; }
+        IUserContext UserContext { get; set; }
 
         IJwtService JwtService { get; set; }
-        public UserService( IRoleService roleService, IUnitOfWork unitOfWork,IJwtService jwtService, IPublishEndpoint publishEndpoint, Serilog.ILogger logger) : base(unitOfWork) 
+        public UserService( IRoleService roleService, IUnitOfWork unitOfWork,IJwtService jwtService, IPublishEndpoint publishEndpoint, Serilog.ILogger logger, IUserContext userContext) : base(unitOfWork) 
         {
             RoleService = roleService;
             UnitOfWork = unitOfWork;
             JwtService = jwtService;
             PublishEndpoint = publishEndpoint;
             Logger = logger;
+            UserContext = userContext;
         }
 
         public async Task<User?> RegisterUser(RegisterUserDTO model)
@@ -73,7 +73,7 @@ namespace IdentityService.Api.Services
             };
             
             await UnitOfWork.Users.AddAsync(user);
-            await PublishEndpoint.Publish<IdentityService.Contracts.Events.UserCreatedEvent>(new
+            await PublishEndpoint.Publish<UserCreatedEvent>(new UserCreatedEvent
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -125,7 +125,7 @@ namespace IdentityService.Api.Services
 
             };
             await UnitOfWork.Users.AddAsync(user);
-            await PublishEndpoint.Publish<IdentityService.Contracts.Events.UserCreatedEvent>(new
+            await PublishEndpoint.Publish<UserCreatedEvent>(new UserCreatedEvent
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -152,7 +152,7 @@ namespace IdentityService.Api.Services
         {
            return await UnitOfWork.Users.GetWithRoleAsync(email, id);
         }
-        public async Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto , string ipAdress)
+        public async Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto)
         {
             User user = await UnitOfWork.Users.GetWithRoleAsync(email:loginUserDto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
@@ -167,12 +167,12 @@ namespace IdentityService.Api.Services
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
             
-            Logger.Information("Handling user log in {UserId} ({UserEmail}) Ip: {ipAdress}", user.Id, user.Email,ipAdress);
+            Logger.Information("Handling user log in {UserId} ({UserEmail}) Ip: {ipAdress}", user.Id, user.Email,UserContext.IpAddress);
             (string jwt, string refreshToken) = await JwtService.GenerateTokens(user.Id, claims);
             await UnitOfWork.SaveChangesAsync();
             return (jwt, refreshToken);
         }
-        public async Task<(string JwtToken, string RefreshToken)> HandleTokenRefreshAsync(Guid userId, string ipAdress)
+        public async Task<(string JwtToken, string RefreshToken)> HandleTokenRefreshAsync(Guid userId)
         {
             // some logic like logging, maybe queue in fututre
 
@@ -183,7 +183,7 @@ namespace IdentityService.Api.Services
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
-            Logger.Information("Handling token refresh for user {UserId} ({UserEmail}) Ip: {ipAdress}", user.Id, user.Email, ipAdress);
+            Logger.Information("Handling token refresh for user {UserId} ({UserEmail}) Ip: {ipAdress}", user.Id, user.Email, UserContext.IpAddress);
             (string jwt, string refreshToken) = await JwtService.GenerateTokens(user.Id, claims);
             await UnitOfWork.SaveChangesAsync();
             return (jwt, refreshToken);
@@ -212,7 +212,7 @@ namespace IdentityService.Api.Services
             string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await UnitOfWork.Users.SetNewPassword(user, newPasswordHash);
             await JwtService.RevokeRefreshTokensForUser(user.Id);
-            await PublishEndpoint.Publish<IdentityService.Contracts.Events.PasswordChangedEvent>(new
+            await PublishEndpoint.Publish<IdentityService.Contracts.Events.PasswordChangedEvent>(new PasswordChangedEvent
             {
                 UserId = user.Id,
                 ChangeDate = DateTime.UtcNow,

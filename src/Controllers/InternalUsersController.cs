@@ -8,7 +8,7 @@ namespace IdentityService.Api.Controllers
 {
     [ApiController]
     [Route("api/internal/users")]
-    [Authorize(Roles = "ServiceApplication")]
+    [Authorize]
     public class InternalUsersController : ControllerBase
     {
         private readonly IUserService _userService;

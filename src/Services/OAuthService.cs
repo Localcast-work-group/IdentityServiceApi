@@ -1,4 +1,4 @@
-﻿using IdentityService.Api.Exceptions; // Do rzucania wyjątków
+﻿using IdentityService.Api.Exceptions;
 using IdentityService.Api.Interfaces;
 using IdentityService.Api.Interfaces.Services;
 using IdentityService.Api.Models;

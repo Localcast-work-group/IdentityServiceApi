@@ -3,7 +3,6 @@ using IdentityService.Api.Interfaces.Services;
 using IdentityService.Api.Models.RefreshToken.DTOs;
 using IdentityService.Api.Models.User;
 using IdentityService.Api.Models.User.DTOs;
-using IdentityService.Api.Models.User.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -49,7 +48,7 @@ namespace IdentityService.Api.Controllers
            
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
 
-            (string jwt, string refresh) tokens = await _userService.HandleLoginAsync(model, ipAddress);
+            (string jwt, string refresh) tokens = await _userService.HandleLoginAsync(model);
 
             Response.Cookies.Append("JWT", tokens.jwt, new CookieOptions
             {
@@ -64,13 +63,13 @@ namespace IdentityService.Api.Controllers
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
 
-            var (isValid, userId) = await _jwtService.ValidateAndRotateRefreshToken(request.RefreshToken, ipAddress);
+            var (isValid, userId) = await _jwtService.ValidateAndRotateRefreshToken(request.RefreshToken);
             if (!isValid)
             {
                 return Unauthorized("Invalid or expired refresh token");
             }
 
-            var tokens = await _userService.HandleTokenRefreshAsync(userId.Value,ipAddress);
+            var tokens = await _userService.HandleTokenRefreshAsync(userId.Value);
             return Ok(new { token = tokens.JwtToken, refreshToken = tokens.RefreshToken });
         }
         [HttpPost("logout")]

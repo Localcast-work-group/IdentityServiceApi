@@ -13,13 +13,15 @@ namespace IdentityService.Api.Services
     {
         public IUnitOfWork UnitOfWork { get; set; }
         public Serilog.ILogger Logger { get; set; }
+        public IUserContext UserContext { get; set; }
         private readonly AuthenticationSettings _authenticationSettings;
 
-        public JwtService(IUnitOfWork unitOfWork, AuthenticationSettings authenticationSettings, ApplicationDbContext applicationDbContext,Serilog.ILogger logger) 
+        public JwtService(IUnitOfWork unitOfWork, AuthenticationSettings authenticationSettings,Serilog.ILogger logger, IUserContext userContext) 
         { 
             _authenticationSettings = authenticationSettings;
             UnitOfWork = unitOfWork;
             Logger = logger;
+            UserContext = userContext;
 
         }
         public async Task<(string JwtToken, string RefreshToken)> GenerateTokens(Guid userId, IEnumerable<Claim> claims)
@@ -51,7 +53,7 @@ namespace IdentityService.Api.Services
 
             return (jwt, refreshToken);
         }
-        public async Task<(bool IsValid, Guid? UserId)> ValidateAndRotateRefreshToken(string refreshToken, string ipAdress)
+        public async Task<(bool IsValid, Guid? UserId)> ValidateAndRotateRefreshToken(string refreshToken)
         {
             var token = await UnitOfWork.Jwts.GetRefreshTokenAsync(refreshToken);
 
@@ -59,7 +61,7 @@ namespace IdentityService.Api.Services
             {
                 if(token != null && token.IsUsed)
                 {
-                    Logger.Warning("Refresh token reuse detected for user {UserId} Ip adress: {ipAdress}", token.UserId,ipAdress);
+                    Logger.Warning("Refresh token reuse detected for user {UserId} Ip adress: {ipAdress}", token.UserId, UserContext.IpAddress);
                     await RevokeRefreshTokensForUser(token.UserId);
                 }
                 return (false, null);

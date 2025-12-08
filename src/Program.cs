@@ -9,11 +9,10 @@ using IdentityService.Api.Filters;
 using IdentityService.Api.Interfaces;
 using IdentityService.Api.Interfaces.Repositories;
 using IdentityService.Api.Interfaces.Services;
-using IdentityService.Api.Models.Role.DTOs;
-using IdentityService.Api.Models.Role.Validators;
 using IdentityService.Api.Repositories;
 using IdentityService.Api.Services;
 using MassTransit;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -33,7 +32,7 @@ namespace IdentityService.Api
             configuration.GetSection("JWT").Bind(authenticationSettings);
             var connectionString = builder.Configuration.GetConnectionString("IdentityDb");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+              options.UseNpgsql(connectionString));
             builder.Services.AddCors(options =>
             {
 
@@ -49,6 +48,8 @@ namespace IdentityService.Api
                     });
             });
             builder.Services.AddSingleton(authenticationSettings);
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IUserContext, UserContext>();
             builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -94,21 +95,39 @@ namespace IdentityService.Api
                     ValidAudience = authenticationSettings.Issuer,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.Key))
                 };
+                cfg.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($" >>> AUTH FAILED: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine($" >>> TOKEN VALIDATED: {context.Principal.Identity.Name}");
+                        return Task.CompletedTask;
+                    }
+                    ,
+                    OnChallenge = context =>
+                    {
+                        Log.Error(">>> CHALLENGE (401/403) triggered. Error: {Error}, Description: {Desc}",
+                            context.Error, context.ErrorDescription);
+                        return Task.CompletedTask;
+                    }
+                };
             });
             builder.Services.AddMassTransit(
                 options => {
                     options.SetKebabCaseEndpointNameFormatter();
                     options.AddEntityFrameworkOutbox<ApplicationDbContext>(outboxConfig =>
                     {
+                        outboxConfig.UsePostgres();
                         outboxConfig.UseBusOutbox();
                     });
                     options.UsingRabbitMq((context, cfg) =>
                     {
-                        cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
-                        {
-                            h.Username(builder.Configuration["RabbitMQ:Username"]);
-                            h.Password(builder.Configuration["RabbitMQ:Password"]);
-                        });
+                        var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+                        cfg.Host(new Uri(connectionString));
 
                         cfg.ConfigureEndpoints(context);
                     });
@@ -164,7 +183,10 @@ namespace IdentityService.Api
                .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
              );
             var app = builder.Build();
-
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+            });
 
             if (app.Environment.IsDevelopment())
             {
@@ -180,9 +202,9 @@ namespace IdentityService.Api
             app.UseCors("AllowAllOrigins");
 
             app.UseAuthentication();
+
             app.UseAuthorization();
 
-            app.UseHttpsRedirection();
 
 
 

@@ -6,7 +6,7 @@ namespace IdentityService.Api.Interfaces.Services
 {
     public interface IJwtService
     {
-        public Task<(bool IsValid, Guid? UserId)> ValidateAndRotateRefreshToken( string refreshToken, string ipAdress);
+        public Task<(bool IsValid, Guid? UserId)> ValidateAndRotateRefreshToken( string refreshToken);
         public Task<(string JwtToken, string RefreshToken)> GenerateTokens(Guid userId, IEnumerable<Claim> claims);
         Task<string> GenerateServiceToken(IEnumerable<Claim> claims);
         public Task RevokeRefreshTokensForUser(Guid userId);
