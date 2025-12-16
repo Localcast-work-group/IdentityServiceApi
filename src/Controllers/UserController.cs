@@ -41,12 +41,28 @@ namespace IdentityService.Api.Controllers
                 Role = user.Role.Name
             });
         }
+        [HttpGet]
+        [Authorize(Roles = "Admin,Course Creator")]
+        public async Task<IActionResult> GetAll()
+        {
+
+            IQueryable<User> users = await _userService.GetAllWithRoles();
+            return Ok(users.Select(u => new GetUserDTO
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Surname = u.Surname,
+                Email = u.Email,
+                FirstName = u.FirstName,
+                Role = u.Role.Name
+
+            }));
+        }
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginUserDto model)
         {
            
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
 
             (string jwt, string refresh) tokens = await _userService.HandleLoginAsync(model);
 
@@ -70,6 +86,10 @@ namespace IdentityService.Api.Controllers
             }
 
             var tokens = await _userService.HandleTokenRefreshAsync(userId.Value);
+            Response.Cookies.Append("JWT", tokens.JwtToken, new CookieOptions
+            {
+                HttpOnly = true
+            });
             return Ok(new { token = tokens.JwtToken, refreshToken = tokens.RefreshToken });
         }
         [HttpPost("logout")]
@@ -96,7 +116,7 @@ namespace IdentityService.Api.Controllers
             return Ok(model);
         }
         [Authorize]
-        [HttpGet("", Name = "GetMyData")]
+        [HttpGet("My", Name = "GetMyData")]
         public async Task<IActionResult> GetMyData()
         {
             User user = await _userService.GetWithRole(id: Guid.Parse((User.Claims.Where(x => x.Type == ClaimTypes.NameIdentifier).FirstOrDefault()).Value) );

@@ -152,6 +152,10 @@ namespace IdentityService.Api.Services
         {
            return await UnitOfWork.Users.GetWithRoleAsync(email, id);
         }
+        public async Task< IQueryable< User>> GetAllWithRoles()
+        {
+            return await UnitOfWork.Users.GetAllWithRolesAsync();
+        }
         public async Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto)
         {
             User user = await UnitOfWork.Users.GetWithRoleAsync(email:loginUserDto.Email);

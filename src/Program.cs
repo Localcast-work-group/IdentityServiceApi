@@ -41,9 +41,10 @@ namespace IdentityService.Api
                     builder =>
                     {
 
-                        builder.AllowAnyOrigin()
+                        builder.WithOrigins("http://localhost:4200")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
+                               .AllowCredentials()
                                .WithExposedHeaders("www-authenticate");
                     });
             });
@@ -97,23 +98,16 @@ namespace IdentityService.Api
                 };
                 cfg.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
                 {
-                    OnAuthenticationFailed = context =>
+                    OnMessageReceived = context =>
                     {
-                        Console.WriteLine($" >>> AUTH FAILED: {context.Exception.Message}");
+                        if (context.Request.Cookies.ContainsKey("JWT"))
+                        {
+                            context.Token = context.Request.Cookies["JWT"];
+                        }
+
                         return Task.CompletedTask;
                     },
-                    OnTokenValidated = context =>
-                    {
-                        Console.WriteLine($" >>> TOKEN VALIDATED: {context.Principal.Identity.Name}");
-                        return Task.CompletedTask;
-                    }
-                    ,
-                    OnChallenge = context =>
-                    {
-                        Log.Error(">>> CHALLENGE (401/403) triggered. Error: {Error}, Description: {Desc}",
-                            context.Error, context.ErrorDescription);
-                        return Task.CompletedTask;
-                    }
+                   
                 };
             });
             builder.Services.AddMassTransit(
@@ -127,6 +121,7 @@ namespace IdentityService.Api
                     options.UsingRabbitMq((context, cfg) =>
                     {
                         var connectionString = builder.Configuration.GetConnectionString("rabbitmq");
+                        cfg.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
                         cfg.Host(new Uri(connectionString));
 
                         cfg.ConfigureEndpoints(context);

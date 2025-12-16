@@ -1,7 +1,8 @@
 ﻿using IdentityService.Api.Data;
-using IdentityService.Api.Models.User;
-using Microsoft.EntityFrameworkCore;
 using IdentityService.Api.Interfaces.Repositories;
+using IdentityService.Api.Models.User;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
 namespace IdentityService.Api.Repositories
 {
     public class UserRepository : BaseRepository<User>, IUserRepository
@@ -18,6 +19,10 @@ namespace IdentityService.Api.Repositories
         public async Task<User?> GetByEmailAsync(string email)
         {
             return ApplicationDbContext.Set<User>().Where(u => u.Email.ToLower() == email.ToLower()).FirstOrDefault();
+        }
+        public async Task<IQueryable<User>> GetAllWithRolesAsync()
+        {
+            return ApplicationDbContext.Set<User>();
         }
 
         public async Task<User?> GetWithRoleAsync(string email = null, Guid? id = null)
