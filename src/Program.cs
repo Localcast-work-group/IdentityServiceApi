@@ -133,6 +133,8 @@ namespace IdentityService.Api
 
             builder.Services.AddSwaggerGen(options =>
             {
+                options.OperationFilter<AuthRequirementsOperationFilter>();
+
                 options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
