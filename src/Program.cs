@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 namespace IdentityService.Api
@@ -109,6 +110,11 @@ namespace IdentityService.Api
                     },
                    
                 };
+            });
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("valkey");
+                options.InstanceName = "IdentityService_";
             });
             builder.Services.AddMassTransit(
                 options => {

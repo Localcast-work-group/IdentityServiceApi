@@ -66,5 +66,16 @@ namespace IdentityService.Api.Repositories
             return Task.CompletedTask;
 
         }
+
+        public Task ChangeRole(Guid userId, Guid newRoleId)
+        {
+            var user = ApplicationDbContext.Set<User>().Where(u => u.Id == userId).FirstOrDefault();
+            if (user != null)
+            {
+                user.RoleId = newRoleId;
+            }
+            return Task.CompletedTask;
+        }
+
     }
 }

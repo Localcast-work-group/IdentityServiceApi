@@ -15,5 +15,6 @@ namespace IdentityService.Api.Interfaces.Services
         public Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto);
         public Task<(string JwtToken, string RefreshToken)> HandleTokenRefreshAsync(Guid userId);
         public Task ResetPassword(Guid token, string newPassword);
+        Task ChangeRole(Guid userId, Guid newRoleId);
     }
 }

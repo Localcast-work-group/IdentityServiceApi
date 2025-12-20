@@ -226,7 +226,7 @@ namespace IdentityService.IntegrationTests.Controllers
             }
 
             // 2. ACT
-            var response = await _client.GetAsync("/api/User");
+            var response = await _client.GetAsync("/api/User/my");
 
             // 3. ASSERT
             response.StatusCode.Should().Be(HttpStatusCode.OK);

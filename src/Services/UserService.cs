@@ -226,5 +226,12 @@ namespace IdentityService.Api.Services
             await UnitOfWork.SaveChangesAsync();
         }
 
+        public async Task ChangeRole(Guid userId, Guid roleId)
+        {
+            await UnitOfWork.Users.ChangeRole(userId, roleId);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        
     }
 }

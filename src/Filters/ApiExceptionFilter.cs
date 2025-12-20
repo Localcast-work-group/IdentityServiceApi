@@ -30,6 +30,10 @@ namespace IdentityService.Api.Filters
             {
                 HandleFluentValidationException(context, validationException);
             }
+            else if (context.Exception is UnauthorizedAccessException unauthorizedAccessException)
+            {
+                HandleUnauthorizedAccessException(context, unauthorizedAccessException);
+            }
             else
             {
                 HandleUnknownException(context);
@@ -40,7 +44,19 @@ namespace IdentityService.Api.Filters
 
             context.ExceptionHandled = true;
         }
-
+        private void HandleUnauthorizedAccessException(ExceptionContext context, UnauthorizedAccessException exception)
+        {
+            var details = new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = "Access denied: " + exception.Message,
+                Type = "https.tools.ietf.org/html/rfc7231#section-6.5.3"
+            };
+            context.Result = new ObjectResult(details)
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            };
+        }
         private void HandleBusinessRuleException(ExceptionContext context, BusinessRuleValidationException exception)
         {
             var details = new ValidationProblemDetails()

@@ -12,5 +12,6 @@ namespace IdentityService.Api.Interfaces.Repositories
         public Task<IQueryable<User>> GetAllWithRolesAsync();
         public Task SetNewPassword(User user, string newPasswordHash);
         public Task GenerateResetPasswordTokenAsync(User user);
+        public Task ChangeRole(Guid userId, Guid roleId);
     }
 }

@@ -160,7 +160,13 @@ namespace IdentityService.Api.Controllers
             await _userService.ResetPassword(resetPasswordDTO.ResetPasswordToken,resetPasswordDTO.Password);
             return Ok();
         }
-
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{userId}/role")]
+        public async Task<IActionResult> ChangeRole(Guid userId, [FromBody] ChangeRoleDto dto)
+        {
+            await _userService.ChangeRole(userId, dto.newRoleId);
+            return Ok();
+        }
     }
 
 }
