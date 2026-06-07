@@ -10,7 +10,7 @@ namespace IdentityService.Api.Interfaces.Services
         public Task<bool> IsUserExistsByEmail(string email);
         public Task<User?> GetByEmail(string email);
         public Task<User?> GetWithRole(string email = null, Guid? id = null);
-        public Task<IQueryable<User>> GetAllWithRoles();
+        public IQueryable<User> GetAllWithRoles();
         public Task GenerateResetPasswordToken(User user);
         public Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto);
         public Task<(string JwtToken, string RefreshToken)> HandleTokenRefreshAsync(Guid userId);

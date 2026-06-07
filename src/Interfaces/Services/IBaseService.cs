@@ -6,7 +6,7 @@ namespace IdentityService.Api.Interfaces.Services
     {
         public Task<T?> GetById(Guid id);
         public Task<T?> GetByName(string name);
-        public Task<IQueryable<T>> GetAll();
+        public IQueryable<T> GetAll();
         public Task<Guid> Add(T model);
         public Task<Guid> Update(T model);
         public Task Delete(Guid id);

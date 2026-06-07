@@ -12,15 +12,15 @@ namespace IdentityService.Api.Repositories
         {
             ApplicationDbContext = context;
         }
-        public async Task<bool> IsUserExistsByEmailAsync(string email)
+        public  Task<bool> IsUserExistsByEmailAsync(string email)
         {
-            return ApplicationDbContext.Set<User>().Where(u => u.Email.ToLower() == email.ToLower()).Any();
+            return ApplicationDbContext.Set<User>().Where(u => u.Email.ToLower() == email.ToLower()).AnyAsync();
         }
-        public async Task<User?> GetByEmailAsync(string email)
+        public  Task<User?> GetByEmailAsync(string email)
         {
-            return ApplicationDbContext.Set<User>().Where(u => u.Email.ToLower() == email.ToLower()).FirstOrDefault();
+            return ApplicationDbContext.Set<User>().Where(u => u.Email.ToLower() == email.ToLower()).FirstOrDefaultAsync();
         }
-        public async Task<IQueryable<User>> GetAllWithRolesAsync()
+        public  IQueryable<User> GetAllWithRoles()
         {
             return ApplicationDbContext.Set<User>();
         }
@@ -39,11 +39,10 @@ namespace IdentityService.Api.Repositories
             return null;
         }
 
-        public Task GenerateResetPasswordTokenAsync(User user)
+        public void GenerateResetPasswordToken(User user)
         {
             user.ResetPasswordToken = Guid.NewGuid();
             user.ResetPasswordTokenExpiry = DateTime.UtcNow.AddHours(1);
-            return Task.CompletedTask;
         }
 
 
@@ -52,7 +51,7 @@ namespace IdentityService.Api.Repositories
             return ApplicationDbContext.Set<User>().Where(u => u.ResetPasswordToken == token).FirstOrDefaultAsync();
         }
 
-        public Task SetNewPassword(User user, string newPasswordHash)
+        public void SetNewPassword(User user, string newPasswordHash)
         {
             user.PasswordHash = newPasswordHash;
             user.LastPasswordChangedAt = DateTime.UtcNow;
@@ -63,18 +62,16 @@ namespace IdentityService.Api.Repositories
             }
             user.ResetPasswordToken = null;
             user.ResetPasswordTokenExpiry = null;
-            return Task.CompletedTask;
 
         }
 
-        public Task ChangeRole(Guid userId, Guid newRoleId)
+        public void ChangeRole(Guid userId, Guid newRoleId)
         {
             var user = ApplicationDbContext.Set<User>().Where(u => u.Id == userId).FirstOrDefault();
             if (user != null)
             {
                 user.RoleId = newRoleId;
             }
-            return Task.CompletedTask;
         }
 
     }

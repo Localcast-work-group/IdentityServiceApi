@@ -9,9 +9,9 @@ namespace IdentityService.Api.Interfaces.Repositories
         public Task<User?> GetByEmailAsync(string email);
         public Task<User?> GetByResetPasswordTokenAsync(Guid token);
         public Task<User?> GetWithRoleAsync(string email = null, Guid? id = null);
-        public Task<IQueryable<User>> GetAllWithRolesAsync();
-        public Task SetNewPassword(User user, string newPasswordHash);
-        public Task GenerateResetPasswordTokenAsync(User user);
-        public Task ChangeRole(Guid userId, Guid roleId);
+        public IQueryable<User> GetAllWithRoles();
+        public void SetNewPassword(User user, string newPasswordHash);
+        public void GenerateResetPasswordToken(User user);
+        public void ChangeRole(Guid userId, Guid roleId);
     }
 }

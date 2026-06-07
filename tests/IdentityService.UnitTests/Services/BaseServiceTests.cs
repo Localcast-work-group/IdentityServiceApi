@@ -68,7 +68,7 @@ namespace IdentityService.UnitTests.Services
             // 3. ASSERT
             resultId.Should().Be(role.Id);
 
-            _repoMock.Verify(x => x.UpdateAsync(role), Times.Once);
+            _repoMock.Verify(x => x.Update(role), Times.Once);
             _uowMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 

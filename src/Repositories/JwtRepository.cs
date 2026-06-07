@@ -58,7 +58,7 @@ namespace IdentityService.Api.Repositories
                 token.IsRevoked = true;
             }
         }
-        public async Task<IQueryable<RefreshToken>> GetRefreshTokensForUserAsync(Guid userId)
+        public IQueryable<RefreshToken> GetRefreshTokensForUser(Guid userId)
         {
             return ApplicationDbContext.Set<RefreshToken>().Where(x => x.UserId == userId);
         }

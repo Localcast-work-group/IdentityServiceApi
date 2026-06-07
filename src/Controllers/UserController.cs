@@ -5,6 +5,7 @@ using IdentityService.Api.Models.User;
 using IdentityService.Api.Models.User.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace IdentityService.Api.Controllers
@@ -46,7 +47,7 @@ namespace IdentityService.Api.Controllers
         public async Task<IActionResult> GetAll()
         {
 
-            IQueryable<User> users = await _userService.GetAllWithRoles();
+            List<User> users = await _userService.GetAllWithRoles().ToListAsync();
             return Ok(users.Select(u => new GetUserDTO
             {
                 Id = u.Id,

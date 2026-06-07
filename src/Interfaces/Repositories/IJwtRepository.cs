@@ -11,7 +11,7 @@ namespace IdentityService.Api.Interfaces.Repositories
         void MarkRefreshTokenAsUsed(RefreshToken refreshToken);
         void ExpireRefreshToken(RefreshToken refreshToken);
         Task<Guid?> GetUserIdByRefreshTokenAsync(string refreshToken);
-        Task<IQueryable<RefreshToken>> GetRefreshTokensForUserAsync(Guid userId);
+        IQueryable<RefreshToken> GetRefreshTokensForUser(Guid userId);
 
     }
 }

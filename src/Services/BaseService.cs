@@ -28,9 +28,9 @@ namespace IdentityService.Api.Services
             await _baseRepository.DeleteAsync(id);
             await _unitOfWork.SaveChangesAsync();
         }
-        public async Task<IQueryable<T>> GetAll()
+        public IQueryable<T> GetAll()
         {
-            return await _baseRepository.GetAllAsync();
+            return  _baseRepository.GetAll();
         }
 
         public async Task<T?> GetById(Guid id)
@@ -43,7 +43,7 @@ namespace IdentityService.Api.Services
         }
         public async Task<Guid> Update(T model)
         {
-            await _baseRepository.UpdateAsync(model);
+             _baseRepository.Update(model);
             await _unitOfWork.SaveChangesAsync();
             return model.Id;
         }

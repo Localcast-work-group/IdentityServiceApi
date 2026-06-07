@@ -29,7 +29,7 @@ namespace IdentityService.Api.Repositories
                 _dBContext.Set<T>().Remove(entity);
             }
         }
-        public async Task<IQueryable<T>> GetAllAsync()
+        public  IQueryable<T> GetAll()
         {
             return  _dBContext.Set<T>();
         }
@@ -42,10 +42,9 @@ namespace IdentityService.Api.Repositories
         {
             return await _dBContext.Set<T>().Where(x => x.Name == name).FirstOrDefaultAsync();
         }
-        public Task UpdateAsync(T model)
+        public void Update(T model)
         {
             _dBContext.Set<T>().Update(model);
-            return Task.CompletedTask;
 
         }
         public async Task<bool> IsNameUniqueAsync(string name)

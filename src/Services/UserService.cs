@@ -152,13 +152,13 @@ namespace IdentityService.Api.Services
         {
            return await UnitOfWork.Users.GetWithRoleAsync(email, id);
         }
-        public async Task< IQueryable< User>> GetAllWithRoles()
+        public  IQueryable< User> GetAllWithRoles()
         {
-            return await UnitOfWork.Users.GetAllWithRolesAsync();
+            return UnitOfWork.Users.GetAllWithRoles();
         }
         public async Task<(string JwtToken, string RefreshToken)> HandleLoginAsync(LoginUserDto loginUserDto)
         {
-            User user = await UnitOfWork.Users.GetWithRoleAsync(email:loginUserDto.Email);
+            User? user = await UnitOfWork.Users.GetWithRoleAsync(email:loginUserDto.Email);
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginUserDto.Password, user.PasswordHash))
             {
                 throw new AuthenticationFailedException("Invalid email or password");
@@ -194,7 +194,7 @@ namespace IdentityService.Api.Services
         }
         public async Task GenerateResetPasswordToken(User user)
         {
-            await UnitOfWork.Users.GenerateResetPasswordTokenAsync(user);
+            UnitOfWork.Users.GenerateResetPasswordToken(user);
             await PublishEndpoint.Publish<IdentityService.Contracts.Events.ResetPasswordTokenGeneratedEvent>(new
             {
                 UserId = user.Id,
@@ -214,7 +214,7 @@ namespace IdentityService.Api.Services
                 throw new InvalidTokenException("Invalid token");
             }
             string newPasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-            await UnitOfWork.Users.SetNewPassword(user, newPasswordHash);
+            UnitOfWork.Users.SetNewPassword(user, newPasswordHash);
             await JwtService.RevokeRefreshTokensForUser(user.Id);
             await PublishEndpoint.Publish<IdentityService.Contracts.Events.PasswordChangedEvent>(new PasswordChangedEvent
             {
@@ -228,7 +228,7 @@ namespace IdentityService.Api.Services
 
         public async Task ChangeRole(Guid userId, Guid roleId)
         {
-            await UnitOfWork.Users.ChangeRole(userId, roleId);
+             UnitOfWork.Users.ChangeRole(userId, roleId);
             await UnitOfWork.SaveChangesAsync();
         }
 
